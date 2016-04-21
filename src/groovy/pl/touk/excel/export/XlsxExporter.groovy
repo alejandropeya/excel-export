@@ -4,7 +4,9 @@ import groovy.transform.TypeChecked
 import org.apache.poi.openxml4j.opc.OPCPackage
 import org.apache.poi.ss.usermodel.CellStyle
 import org.apache.poi.ss.usermodel.CreationHelper
+import org.apache.poi.ss.usermodel.DataFormat
 import org.apache.poi.ss.usermodel.Sheet
+import org.apache.poi.xssf.streaming.SXSSFWorkbook
 import org.apache.poi.xssf.usermodel.XSSFDataFormat
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import pl.touk.excel.export.abilities.CellManipulationAbility
@@ -24,12 +26,20 @@ class XlsxExporter implements SheetManipulator {
     private String worksheetName
     private CellStyle dateCellStyle
     private CreationHelper creationHelper
-    protected XSSFWorkbook workbook
+    private int windowSize
+
+    protected SXSSFWorkbook workbook
     protected String fileNameWithPath
     protected OPCPackage zipPackage
 
     XlsxExporter() {
-        this.workbook = new XSSFWorkbook()
+        this.workbook = new SXSSFWorkbook()
+        setUp(workbook)
+    }
+
+    XlsxExporter(int windowSize) {
+        this.windowSize = windowSize
+        this.workbook = new SXSSFWorkbook(this.windowSize)
         setUp(workbook)
     }
 
@@ -39,12 +49,12 @@ class XlsxExporter implements SheetManipulator {
         setUp(workbook)
     }
 
-    private XSSFWorkbook createOrLoadWorkbook(String fileNameWithPath) {
+    private SXSSFWorkbook createOrLoadWorkbook(String fileNameWithPath) {
         if(new File(fileNameWithPath).exists()) {
             zipPackage = OPCPackage.open(fileNameWithPath);
-            return new XSSFWorkbook(zipPackage)
+            return new SXSSFWorkbook(new XSSFWorkbook(zipPackage))
         } else {
-            return new XSSFWorkbook()
+            return new SXSSFWorkbook()
         }
     }
 
@@ -54,16 +64,16 @@ class XlsxExporter implements SheetManipulator {
         setUp(workbook)
     }
 
-    private XSSFWorkbook copyAndLoad(String templateNameWithPath, String destinationNameWithPath) {
+    private SXSSFWorkbook copyAndLoad(String templateNameWithPath, String destinationNameWithPath) {
         if(!new File(templateNameWithPath).exists()) {
             throw new IOException("No template file under path: " + templateNameWithPath)
         }
         copy(templateNameWithPath, destinationNameWithPath)
         zipPackage = OPCPackage.open(destinationNameWithPath);
-        return new XSSFWorkbook(zipPackage)
+        return new SXSSFWorkbook(new XSSFWorkbook(zipPackage))
     }
 
-    private setUp(XSSFWorkbook workbook) {
+    private setUp(SXSSFWorkbook workbook) {
         this.creationHelper = workbook.getCreationHelper()
         this.dateCellStyle = createDateCellStyle(XlsxExporter.defaultDateFormat)
     }
@@ -91,8 +101,8 @@ class XlsxExporter implements SheetManipulator {
 
     private void copy(String templateNameWithPath, String destinationNameWithPath) {
         zipPackage = OPCPackage.open(templateNameWithPath);
-        XSSFWorkbook originalWorkbook = new XSSFWorkbook(zipPackage)
-        new FileOutputStream(destinationNameWithPath).with { OutputStream it ->
+        SXSSFWorkbook originalWorkbook = new SXSSFWorkbook(new XSSFWorkbook(zipPackage))
+        new FileOutputStream(destinationNameWithPath).with { FileOutputStream it ->
             originalWorkbook.write(it)
         }
     }
@@ -104,7 +114,7 @@ class XlsxExporter implements SheetManipulator {
 
     private CellStyle createDateCellStyle(String expectedDateFormat) {
         CellStyle dateCellStyle = workbook.createCellStyle()
-        XSSFDataFormat dateFormat = workbook.createDataFormat()
+        DataFormat dateFormat = workbook.createDataFormat()
         dateCellStyle.dataFormat = dateFormat.getFormat(expectedDateFormat)
         return dateCellStyle
     }
@@ -113,7 +123,7 @@ class XlsxExporter implements SheetManipulator {
         this.worksheetName = worksheetName
     }
 
-    XSSFWorkbook getWorkbook() {
+    SXSSFWorkbook getWorkbook() {
         return workbook
     }
 

@@ -5,8 +5,8 @@ import javax.servlet.http.HttpServletResponse
 
 class WebXlsxExporter extends XlsxExporter {
 
-    WebXlsxExporter() {
-        super()
+    WebXlsxExporter(int windowSize) {
+        super(windowSize)
     }
 
     WebXlsxExporter(String templateFileNameWithPath) {

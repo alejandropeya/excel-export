@@ -1,15 +1,15 @@
 package pl.touk.excel.export.abilities
 import org.apache.poi.ss.usermodel.Sheet
 import org.apache.poi.ss.util.CellUtil
-import org.apache.poi.xssf.usermodel.XSSFCell
-import org.apache.poi.xssf.usermodel.XSSFRow
+import org.apache.poi.xssf.streaming.SXSSFCell
+import org.apache.poi.xssf.streaming.SXSSFRow
 import pl.touk.excel.export.getters.Getter
 import pl.touk.excel.export.multisheet.SheetManipulator
 
 @Category(SheetManipulator)
 class CellManipulationAbility {
-    XSSFCell getCellAt(int rowNumber, int columnNumber) {
-        XSSFRow row = CellManipulationAbility.getOrCreateRow(rowNumber, sheet)
+    SXSSFCell getCellAt(int rowNumber, int columnNumber) {
+        SXSSFRow row = CellManipulationAbility.getOrCreateRow(rowNumber, sheet)
         row.getCell((Short) columnNumber)
     }
 
@@ -29,7 +29,7 @@ class CellManipulationAbility {
     }
 
     SheetManipulator putCellValue(int rowNumber, int columnNumber, Date value) {
-        XSSFCell cell = CellManipulationAbility.getOrCreateCellAt(rowNumber, columnNumber, sheet)
+        SXSSFCell cell = CellManipulationAbility.getOrCreateCellAt(rowNumber, columnNumber, sheet)
         cell.setCellValue(value)
         cell.setCellStyle(dateCellStyle)
         return this
@@ -40,11 +40,11 @@ class CellManipulationAbility {
         return this
     }
 
-    private static XSSFCell getOrCreateCellAt(int rowNumber, int columnNumber, Sheet sheet) {
-        (XSSFCell) CellUtil.getCell(getOrCreateRow(rowNumber, sheet), columnNumber)
+    private static SXSSFCell getOrCreateCellAt(int rowNumber, int columnNumber, Sheet sheet) {
+        (SXSSFCell) CellUtil.getCell(getOrCreateRow(rowNumber, sheet), columnNumber)
     }
 
-    private static XSSFRow getOrCreateRow(int rowNumber, Sheet sheet) {
-        (XSSFRow) CellUtil.getRow(rowNumber, sheet)
+    private static SXSSFRow getOrCreateRow(int rowNumber, Sheet sheet) {
+        (SXSSFRow) CellUtil.getRow(rowNumber, sheet)
     }
 }
