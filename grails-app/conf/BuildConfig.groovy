@@ -2,6 +2,12 @@ grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
 
+grails.project.repos.peya.url = "http://54.209.219.49:8081/nexus/content/repositories/thirdparty/"
+grails.project.repos.peya.type = "maven"
+grails.project.repos.peya.username = "deployment"
+grails.project.repos.peya.password = "peya"
+grails.project.repos.default = "peya"
+
 grails.project.dependency.resolution = {
     // inherit Grails' default dependencies
     inherits("global") {
